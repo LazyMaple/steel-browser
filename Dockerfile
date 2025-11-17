@@ -90,6 +90,9 @@ RUN apt-get update && \
     dbus \
     dbus-x11 \
     procps \
+    vim \
+    net-tools \
+    libnss3-tools \
     x11-xserver-utils
 
 # Install Chrome and ChromeDriver
@@ -122,4 +125,11 @@ EXPOSE 3000 9223
 ENV HOST_IP=localhost \
     DBUS_SESSION_BUS_ADDRESS=autolaunch:
 
+ENV PROXY_SERVER="http://host.docker.internal:17777"
+
+RUN mv /usr/lib/chromium/chromium /usr/lib/chromium/chromium2
+COPY --chmod=755 docker/chromium /usr/lib/chromium/chromium
+COPY docker/mitmproxy-ca-cert.pem /usr/local/share/ca-certificates/mitm.crt
+RUN chmod +x /usr/lib/chromium/chromium
+RUN update-ca-certificates
 ENTRYPOINT ["/app/api/entrypoint.sh"]
